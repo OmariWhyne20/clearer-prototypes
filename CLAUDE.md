@@ -19,18 +19,21 @@ Key concepts you must understand to build useful prototypes:
 
 ## CRITICAL: Folder Rules
 
-**All prototype work goes in its own subfolder.** Never create files at the repo root (except `index.html` and this file).
+**All prototype work goes inside `projects/<project-name>/`.** Never create files at the repo root (except `index.html` and this file).
 
 ```
-prototypes/
-├── CLAUDE.md                           ← this file (do not edit unless asked)
-├── index.html                          ← listing page (update when adding prototypes)
+repo root/
+├── CLAUDE.md                                   ← this file (do not edit unless asked)
+├── index.html                                  ← listing page (update when adding prototypes)
 ├── _shared/
-│   └── slate-cs24-tokens.css           ← shared design tokens (do not edit unless asked)
-├── clearer-calculator/
-│   └── v1-pre-confirmation.html
-├── <next-prototype>/
-│   └── ...
+│   └── slate-cs24-tokens.css                   ← shared design tokens (do not edit unless asked)
+└── projects/
+    ├── clearer-calculator/
+    │   ├── README.md                           ← project context, versions, design decisions
+    │   └── v1-pre-confirmation.html
+    └── <next-prototype>/
+        ├── README.md
+        └── ...
 ```
 
 ### Before starting any prototype work, ask:
@@ -42,10 +45,39 @@ Do not infer names. Do not skip this step.
 
 ### Adding a new prototype
 
-1. Create a subfolder with a descriptive kebab-case name
-2. Create the prototype file(s) inside it
-3. Add an entry to `index.html` linking to the new prototype
-4. Link the shared tokens: `<link rel="stylesheet" href="../_shared/slate-cs24-tokens.css" />`
+1. Create a subfolder under `projects/` with a descriptive kebab-case name
+2. Create a `README.md` with project details (see template below)
+3. Create the prototype file(s)
+4. Add an entry to `index.html` linking to the new prototype
+5. Link the shared tokens: `<link rel="stylesheet" href="../../_shared/slate-cs24-tokens.css" />`
+
+### README.md template for new projects
+
+```markdown
+# <Project Name>
+
+One-line description of what this prototype shows.
+
+## Project Details
+- **Name**: <Project Name>
+- **View Type**: Mobile View
+- **Canvas Size**: 428px width (iPhone viewport)
+- **Created**: <dd/mm/yyyy>
+
+## Versions
+- `v1-<descriptor>.html` — What this version shows
+
+## What This Prototype Tests
+- Question 1 this prototype answers
+- Question 2 this prototype answers
+
+## Key Design Decisions
+- Decision and rationale
+- Decision and rationale
+
+## Files
+- `v1-<descriptor>.html` — Description
+```
 
 ## Design System: Slate CS24
 
@@ -189,4 +221,4 @@ git push
 ```
 
 Changes go live within a couple of minutes. The live URL pattern is:
-`https://omariwhyne20.github.io/clearer-prototypes/<folder>/<file>.html`
+`https://omariwhyne20.github.io/clearer-prototypes/projects/<project-name>/<file>.html`
