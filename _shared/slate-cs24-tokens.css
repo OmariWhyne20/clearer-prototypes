@@ -1,0 +1,254 @@
+/*
+ * ─── SLATE FOUNDATIONS: CS-24 LIGHT THEME ──────────────────────
+ * Exact token values from @slate/foundations@0.65.0 dist/css/cs-24-light.css
+ *
+ * Usage: <link rel="stylesheet" href="../_shared/slate-cs24-tokens.css" />
+ * Then reference tokens as var(--slate-*) in your prototype styles.
+ *
+ * When @slate/foundations is available via npm, this file can be replaced
+ * with: @import '@slate/foundations/dist/css/cs-24-light.css';
+ */
+
+:root {
+  /* ── Content text ── */
+  --slate-color-content-text-primary: hsl(203 55% 10%);
+  --slate-color-content-text-secondary: hsl(209 19% 22%);
+  --slate-color-content-text-tertiary: hsl(210 19% 75%);
+  --slate-color-content-text-inverted-primary: hsl(0 0% 100%);
+  --slate-color-content-text-inverted-secondary: hsl(203 55% 83%);
+  --slate-color-content-text-disabled: hsl(210 19% 75%);
+
+  /* ── Action ── */
+  --slate-color-action-text-primary: hsl(184 36% 32%);
+  --slate-color-action-text-primary-active: hsl(185 37% 19%);
+  --slate-color-action-surface-primary: linear-gradient(135deg, hsl(184 36% 24%) 0%, hsl(203 55% 13%) 100%);
+  --slate-color-action-surface-primary-active: linear-gradient(135deg, hsl(185 37% 19%) 0%, hsl(204 56% 5%) 100%);
+
+  /* ── Positive ── */
+  --slate-color-positive-text-primary: hsl(172 80% 24%);
+  --slate-color-positive-surface-primary: hsl(172 81% 84%);
+  --slate-color-positive-border-primary: hsl(172 79% 75%);
+
+  /* ── Negative ── */
+  --slate-color-negative-text-primary: hsl(330 39% 39%);
+  --slate-color-negative-surface-primary: hsl(344 62% 93%);
+
+  /* ── Warning ── */
+  --slate-color-warning-text-primary: hsl(10 60% 44%);
+  --slate-color-warning-surface-primary: hsl(24 81% 87%);
+
+  /* ── Surface ── */
+  --slate-color-surface-primary: hsl(0 0% 100%);
+  --slate-color-surface-secondary: hsl(184 37% 93%);
+  --slate-color-surface-background-primary: hsl(180 35% 94%);
+  --slate-color-surface-background-secondary: hsl(0 0% 100%);
+
+  /* ── Shadows ── */
+  --slate-shadow-none: 0 0 0 hsl(0 0% 100% / 0);
+  --slate-shadow-small: 0 0 0.125rem hsl(0 0% 0% / 0.16), 0 0.125rem 0.25rem hsl(183 35% 70% / 0.64);
+  --slate-shadow-medium: 0 0 0.25rem hsl(0 0% 0% / 0.16), 0 0.25rem 0.5rem hsl(183 35% 70% / 0.64);
+  --slate-shadow-large: 0 0.0625rem 0.5rem hsl(0 0% 0% / 0.16), 0 0.5rem 0.75rem hsl(183 35% 70% / 0.64);
+
+  /* ── Border ── */
+  --slate-size-border-radius-small: 0.5rem;
+  --slate-size-border-radius-medium: 0.75rem;
+  --slate-size-border-radius-large: 1rem;
+  --slate-size-border-radius-2xlarge: 1.5rem;
+  --slate-size-border-width-small: 0.5px;
+  --slate-size-border-width-medium: 1px;
+
+  /* ── Card ── */
+  --slate-components-card-border-radius-default: 1.5rem;
+  --slate-components-card-border-radius-nested: 0.75rem;
+  --slate-components-card-shadow-default: 0 0 0 hsl(0 0% 100% / 0);
+  --slate-components-card-shadow-interactive: 0 0 0.25rem hsl(0 0% 0% / 0.16), 0 0.25rem 0.5rem hsl(183 35% 70% / 0.64);
+  --slate-components-card-background-primary: hsl(0 0% 100%);
+  --slate-components-card-border-primary: hsl(0 0% 100% / 0);
+  --slate-components-card-background-positive: hsl(172 81% 84%);
+  --slate-components-card-border-positive: hsl(0 0% 100% / 0);
+  --slate-components-card-background-negative: hsl(344 62% 93%);
+  --slate-components-card-padding-xsmall: 1rem;
+
+  /* ── Button ── */
+  --slate-components-button-border-radius: 1rem;
+  --slate-components-button-primary-background: linear-gradient(135deg, hsl(184 36% 24%) 0%, hsl(203 55% 13%) 100%);
+  --slate-components-button-primary-background-active: linear-gradient(135deg, hsl(185 37% 19%) 0%, hsl(204 56% 5%) 100%);
+  --slate-components-button-primary-content: hsl(0 0% 100%);
+  --slate-components-button-primary-border: hsl(0 0% 100% / 0);
+  --slate-components-button-tertiary-background: hsl(0 0% 100% / 0);
+  --slate-components-button-tertiary-background-active: hsl(0 0% 0% / 0.04);
+  --slate-components-button-tertiary-content: hsl(184 36% 32%);
+  --slate-components-button-tertiary-border: hsl(0 0% 100% / 0);
+  --slate-components-button-padding-medium-vertical: 0.75rem;
+  --slate-components-button-padding-medium-horizontal: 1rem;
+  --slate-components-button-gap: 0.25rem;
+
+  /* ── Card callout ── */
+  --slate-components-card-callout-border-radius-default: 0.75rem;
+  --slate-components-card-callout-background-positive: hsl(172 81% 84%);
+  --slate-components-card-callout-content-positive: hsl(203 55% 10%);
+  --slate-components-card-callout-background-warning: hsl(24 81% 87%);
+  --slate-components-card-callout-content-warning: hsl(203 55% 10%);
+  --slate-components-card-callout-background-negative: hsl(344 62% 93%);
+  --slate-components-card-callout-content-negative: hsl(203 55% 10%);
+
+  /* ── Cell row ── */
+  --slate-components-cell-row-background: hsl(0 0% 100%);
+  --slate-components-cell-row-label: hsl(209 19% 22%);
+  --slate-components-cell-row-value-content: hsl(203 55% 10%);
+  --slate-components-cell-row-border-full: hsl(210 19% 75%);
+  --slate-components-cell-row-border-width-full: 0.5px;
+
+  /* ── Tag ── */
+  --slate-components-tag-border-radius: 0.75rem;
+  --slate-components-tag-background-positive: hsl(172 81% 84%);
+  --slate-components-tag-content-positive: hsl(172 80% 24%);
+  --slate-components-tag-background-warning: hsl(24 81% 87%);
+  --slate-components-tag-content-warning: hsl(10 60% 44%);
+  --slate-components-tag-padding-top: 0.125rem;
+  --slate-components-tag-padding-bottom: 0.125rem;
+  --slate-components-tag-padding-left: 0.25rem;
+  --slate-components-tag-padding-right: 0.5rem;
+
+  /* ── Sticky container ── */
+  --slate-components-sticky-container-background-secondary: hsl(0 0% 100%);
+  --slate-components-sticky-container-shadow-bottom: 0 -0.0625rem 0.5rem hsl(0 0% 0% / 0.16), 0 -0.5rem 0.75rem hsl(183 35% 70% / 0.64);
+
+  /* ── Font ── */
+  --slate-font-mobile-hero-level-5: 900 2rem/1.2 CS Clarity Display, Helvetica Neue, Helvetica, Arial, sans-serif;
+  --slate-font-mobile-hero-level-6: 900 1.5rem/1.2 CS Clarity Display, Helvetica Neue, Helvetica, Arial, sans-serif;
+  --slate-font-mobile-heading-level-3: 700 1.25rem/1.2 CS Clarity, Helvetica Neue, Helvetica, Arial, sans-serif;
+  --slate-font-mobile-heading-level-4: 700 1rem/1.2 CS Clarity, Helvetica Neue, Helvetica, Arial, sans-serif;
+  --slate-font-mobile-heading-level-5: 700 0.875rem/1.2 CS Clarity, Helvetica Neue, Helvetica, Arial, sans-serif;
+  --slate-font-mobile-body-default: 400 1rem/1.5 CS Clarity, Helvetica Neue, Helvetica, Arial, sans-serif;
+  --slate-font-mobile-body-bold: 700 1rem/1.5 CS Clarity, Helvetica Neue, Helvetica, Arial, sans-serif;
+  --slate-font-mobile-body-small: 400 0.875rem/1.5 CS Clarity, Helvetica Neue, Helvetica, Arial, sans-serif;
+  --slate-font-mobile-body-small-bold: 700 0.875rem/1.5 CS Clarity, Helvetica Neue, Helvetica, Arial, sans-serif;
+  --slate-font-mobile-special-caption: 400 0.75rem/1.5 CS Clarity, Helvetica Neue, Helvetica, Arial, sans-serif;
+  --slate-font-mobile-special-caption-bold: 700 0.75rem/1.5 CS Clarity, Helvetica Neue, Helvetica, Arial, sans-serif;
+  --slate-font-mobile-special-overline: 500 0.75rem/1.5 CS Clarity, Helvetica Neue, Helvetica, Arial, sans-serif;
+  --slate-font-mobile-button-medium: 700 1rem/1.5rem CS Clarity, Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+
+/* ─── BASE RESET ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font: var(--slate-font-mobile-body-default);
+  background-color: var(--slate-color-surface-background-primary);
+  color: var(--slate-color-content-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+button { font-family: inherit; border: none; background: none; cursor: pointer; }
+
+/* ─── SLATE COMPONENT UTILITY CLASSES ────────────────────────── */
+
+/* Card */
+.slate-card {
+  word-wrap: break-word;
+  border-radius: var(--slate-components-card-border-radius-default);
+  width: 100%;
+  display: inline-flex;
+  text-align: left;
+  box-shadow: var(--slate-components-card-shadow-default),
+    0 0 0 var(--slate-size-border-width-medium) var(--slate-components-card-border-primary) inset;
+  background: var(--slate-components-card-background-primary);
+}
+.slate-card-content {
+  width: 100%;
+  border-radius: inherit;
+  padding: var(--slate-components-card-padding-xsmall);
+  background: var(--slate-components-card-background-primary);
+}
+
+/* Card callout */
+.slate-callout {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--slate-components-card-callout-border-radius-default);
+  gap: 0.5rem;
+  padding: 0.75rem;
+  text-align: center;
+}
+.slate-callout-positive { background: var(--slate-components-card-callout-background-positive); color: var(--slate-components-card-callout-content-positive); }
+.slate-callout-warning { background: var(--slate-components-card-callout-background-warning); color: var(--slate-components-card-callout-content-warning); }
+.slate-callout-negative { background: var(--slate-components-card-callout-background-negative); color: var(--slate-components-card-callout-content-negative); }
+
+/* Button */
+.slate-btn {
+  position: relative;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--slate-components-button-gap);
+  border-radius: var(--slate-components-button-border-radius);
+  text-decoration: none;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  padding: var(--slate-components-button-padding-medium-vertical)
+           var(--slate-components-button-padding-medium-horizontal);
+}
+.slate-btn-primary {
+  background: var(--slate-components-button-primary-background);
+  box-shadow: var(--slate-shadow-small), 0 0 0 var(--slate-size-border-width-medium) var(--slate-components-button-primary-border) inset;
+  color: var(--slate-components-button-primary-content);
+  font: var(--slate-font-mobile-button-medium);
+}
+.slate-btn-primary:hover { background: var(--slate-components-button-primary-background-active); }
+.slate-btn-tertiary {
+  background: var(--slate-components-button-tertiary-background);
+  box-shadow: none;
+  color: var(--slate-components-button-tertiary-content);
+  font: var(--slate-font-mobile-body-default);
+}
+.slate-btn-tertiary:hover { background: var(--slate-components-button-tertiary-background-active); }
+
+/* Text sentiments */
+.slate-text-primary { color: var(--slate-color-content-text-primary); }
+.slate-text-secondary { color: var(--slate-color-content-text-secondary); }
+.slate-text-disabled { color: var(--slate-color-content-text-disabled); }
+.slate-text-positive { color: var(--slate-color-positive-text-primary); }
+.slate-text-negative { color: var(--slate-color-negative-text-primary); }
+.slate-text-warning { color: var(--slate-color-warning-text-primary); }
+.slate-text-action { color: var(--slate-color-action-text-primary); }
+.slate-text-inverted { color: var(--slate-color-content-text-inverted-primary); }
+.slate-text-inverted-secondary { color: var(--slate-color-content-text-inverted-secondary); }
+
+/* Cell row separator */
+.slate-cell-separator { border-bottom: var(--slate-components-cell-row-border-width-full) solid var(--slate-components-cell-row-border-full); }
+.slate-cell-separator:last-child { border-bottom: none; }
+
+/* Tag */
+.slate-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  padding: var(--slate-components-tag-padding-top) var(--slate-components-tag-padding-right)
+           var(--slate-components-tag-padding-bottom) var(--slate-components-tag-padding-left);
+  border-radius: var(--slate-components-tag-border-radius);
+  font: var(--slate-font-mobile-special-caption-bold);
+}
+.slate-tag-positive { background: var(--slate-components-tag-background-positive); color: var(--slate-components-tag-content-positive); }
+.slate-tag-warning { background: var(--slate-components-tag-background-warning); color: var(--slate-components-tag-content-warning); }
+
+/* Sticky container */
+.slate-sticky-bottom {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--slate-components-sticky-container-background-secondary);
+  box-shadow: var(--slate-components-sticky-container-shadow-bottom);
+  padding: 1rem;
+}
+
+/* Divider */
+.slate-divider {
+  border: none;
+  height: var(--slate-components-cell-row-border-width-full);
+  width: 100%;
+  background: var(--slate-components-cell-row-border-full);
+}
+
+/* Animation */
+.fade-in { animation: fadeIn 0.3s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clearer Calculator — Pre-Confirmation</title>
+  <link rel="stylesheet" href="../_shared/slate-cs24-tokens.css" />
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    // ─── MOCK DATA ───────────────────────────────────────────────
+    const EXISTING_DEBTS = [
+      { id: 1, creditor: 'Barclaycard', type: 'credit-card', balance: 4250, apr: 22.9, monthlyPayment: 127, confidence: 'categorised' },
+      { id: 2, creditor: 'HSBC', type: 'personal-loan', balance: 8400, apr: 7.9, monthlyPayment: 195, remainingMonths: 48, confidence: 'categorised' },
+      { id: 3, creditor: 'Capital One', type: 'credit-card', balance: 2100, apr: 34.9, monthlyPayment: 63, confidence: 'extrapolated' },
+    ];
+
+    const CONSOLIDATION_LOAN = {
+      lender: 'Novuna', amount: 15500, apr: 6.9, termMonths: 60, monthlyPayment: 305.72,
+    };
+
+    // ─── CALCULATION ENGINE ──────────────────────────────────────
+    function calculateExistingDebtMetrics(debts) {
+      let totalBalance = 0, totalMonthlyPayment = 0, totalCostOfCredit = 0, latestDebtFreeMonth = 0;
+      debts.forEach(debt => {
+        totalBalance += debt.balance;
+        totalMonthlyPayment += debt.monthlyPayment;
+        if (debt.type === 'personal-loan' && debt.remainingMonths) {
+          totalCostOfCredit += debt.monthlyPayment * debt.remainingMonths;
+          latestDebtFreeMonth = Math.max(latestDebtFreeMonth, debt.remainingMonths);
+        } else {
+          const r = debt.apr / 100 / 12;
+          if (debt.monthlyPayment <= debt.balance * r) {
+            totalCostOfCredit += debt.monthlyPayment * 360;
+            latestDebtFreeMonth = Math.max(latestDebtFreeMonth, 360);
+          } else {
+            const m = Math.ceil(-Math.log(1 - (debt.balance * r) / debt.monthlyPayment) / Math.log(1 + r));
+            totalCostOfCredit += debt.monthlyPayment * m;
+            latestDebtFreeMonth = Math.max(latestDebtFreeMonth, m);
+          }
+        }
+      });
+      return { totalBalance, totalMonthlyPayment, totalCostOfCredit, debtFreeMonths: latestDebtFreeMonth };
+    }
+
+    function calculateConsolidationMetrics(loan) {
+      return { totalCostOfCredit: loan.monthlyPayment * loan.termMonths, monthlyPayment: loan.monthlyPayment, debtFreeMonths: loan.termMonths };
+    }
+
+    function monthsToDate(months) {
+      const d = new Date(); d.setMonth(d.getMonth() + months);
+      return d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+    }
+
+    function fmt(n) { return '\u00A3' + Math.abs(Math.round(n)).toLocaleString('en-GB'); }
+
+    // ─── COMPONENTS ──────────────────────────────────────────────
+
+    function ConfidenceTag({ level }) {
+      const isVerified = level === 'categorised';
+      return (
+        <span className={`slate-tag ${isVerified ? 'slate-tag-positive' : 'slate-tag-warning'}`}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'currentColor' }} />
+          {isVerified ? 'Verified' : 'Estimated'}
+        </span>
+      );
+    }
+
+    function DebtCellRow({ debt }) {
+      return (
+        <div className="slate-cell-separator" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <span style={{ font: 'var(--slate-font-mobile-body-bold)' }} className="slate-text-primary">{debt.creditor}</span>
+            <span style={{ font: 'var(--slate-font-mobile-body-small)' }} className="slate-text-secondary">
+              {debt.type === 'credit-card' ? 'Credit card' : 'Personal loan'} · {debt.apr}% APR
+            </span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+            <span style={{ font: 'var(--slate-font-mobile-body-bold)' }} className="slate-text-primary">{fmt(debt.balance)}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ font: 'var(--slate-font-mobile-body-small)' }} className="slate-text-secondary">{fmt(debt.monthlyPayment)}/mo</span>
+              <ConfidenceTag level={debt.confidence} />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function MetricRow({ label, current, next, colorClass }) {
+      return (
+        <div className="slate-cell-separator" style={{ padding: '0.75rem 0' }}>
+          <span style={{ font: 'var(--slate-font-mobile-special-overline)', textTransform: 'uppercase', letterSpacing: '0.04em' }} className="slate-text-secondary">{label}</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
+            <span style={{ font: 'var(--slate-font-mobile-body-default)', textDecoration: 'line-through' }} className="slate-text-disabled">{current}</span>
+            <span style={{ font: 'var(--slate-font-mobile-body-small)' }} className="slate-text-disabled">&rarr;</span>
+            <span style={{ font: 'var(--slate-font-mobile-body-bold)' }} className={colorClass || 'slate-text-primary'}>{next}</span>
+          </div>
+        </div>
+      );
+    }
+
+    function SavingsCallout({ totalSaving, isPositive }) {
+      return (
+        <div className={`slate-callout fade-in ${isPositive ? 'slate-callout-positive' : 'slate-callout-warning'}`}>
+          <span style={{ font: 'var(--slate-font-mobile-special-overline)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            {isPositive ? 'Estimated total saving' : 'This consolidation costs more overall'}
+          </span>
+          <span style={{ font: 'var(--slate-font-mobile-hero-level-6)' }}>{fmt(Math.abs(totalSaving))}</span>
+          <span style={{ font: 'var(--slate-font-mobile-body-small)', opacity: 0.7 }}>
+            {isPositive ? 'less interest paid overall' : 'more in total repayments — but your monthly payment drops'}
+          </span>
+        </div>
+      );
+    }
+
+    function CashBreakdown({ loan, totalBalance }) {
+      const cash = loan.amount - totalBalance;
+      const isExcess = cash > 0;
+      return (
+        <div className="slate-card fade-in">
+          <div className="slate-card-content">
+            <span style={{ font: 'var(--slate-font-mobile-heading-level-4)' }}>How your loan breaks down</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.75rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', font: 'var(--slate-font-mobile-body-default)' }}>
+                <span className="slate-text-secondary">Loan amount</span>
+                <span style={{ fontWeight: 500 }}>{fmt(loan.amount)}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', font: 'var(--slate-font-mobile-body-default)' }}>
+                <span className="slate-text-secondary">Used to settle debts</span>
+                <span style={{ fontWeight: 500 }}>&minus;{fmt(totalBalance)}</span>
+              </div>
+              <hr className="slate-divider" />
+              <div style={{ display: 'flex', justifyContent: 'space-between', font: 'var(--slate-font-mobile-body-bold)' }}>
+                <span>{isExcess ? 'Cash in your account' : 'Shortfall to cover'}</span>
+                <span className={isExcess ? 'slate-text-positive' : 'slate-text-negative'}>{fmt(cash)}</span>
+              </div>
+            </div>
+            {isExcess && (
+              <p style={{
+                font: 'var(--slate-font-mobile-body-small)',
+                marginTop: '0.75rem',
+                background: 'var(--slate-color-surface-background-primary)',
+                borderRadius: 'var(--slate-components-card-callout-border-radius-default)',
+                padding: '0.5rem 0.75rem',
+              }} className="slate-text-secondary">
+                This is the amount remaining after your existing debts are settled. It will be paid into your bank account.
+              </p>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    function ConfidenceExplainer() {
+      const [open, setOpen] = useState(false);
+      return (
+        <div>
+          <button onClick={() => setOpen(!open)} className="slate-text-action"
+            style={{ font: 'var(--slate-font-mobile-body-small)', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 0' }}>
+            <span style={{ fontSize: 10 }}>{open ? '\u25BE' : '\u25B8'}</span>
+            How accurate are these numbers?
+          </button>
+          {open && (
+            <div className="slate-card fade-in" style={{ marginTop: '0.5rem' }}>
+              <div className="slate-card-content" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, marginTop: 5, background: 'var(--slate-color-positive-text-primary)' }} />
+                  <span style={{ font: 'var(--slate-font-mobile-body-small)' }} className="slate-text-secondary">
+                    <strong className="slate-text-primary">Verified</strong> — We connected to your bank account and confirmed the exact balance, payment, and interest rate.
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, marginTop: 5, background: 'var(--slate-color-warning-text-primary)' }} />
+                  <span style={{ font: 'var(--slate-font-mobile-body-small)' }} className="slate-text-secondary">
+                    <strong className="slate-text-primary">Estimated</strong> — We estimated the interest rate based on your credit profile and the type of account. The actual amount may differ slightly.
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ─── MAIN APP ────────────────────────────────────────────────
+
+    function App() {
+      const [confirmed, setConfirmed] = useState(false);
+      const existing = useMemo(() => calculateExistingDebtMetrics(EXISTING_DEBTS), []);
+      const consolidated = useMemo(() => calculateConsolidationMetrics(CONSOLIDATION_LOAN), []);
+      const totalSaving = existing.totalCostOfCredit - consolidated.totalCostOfCredit;
+
+      const metricColor = (current, next, invert) => {
+        if (typeof current !== 'number' || typeof next !== 'number') return 'slate-text-primary';
+        const diff = next - current;
+        return (invert ? diff > 0 : diff < 0) ? 'slate-text-positive' : diff === 0 ? 'slate-text-primary' : 'slate-text-negative';
+      };
+
+      if (confirmed) {
+        return (
+          <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+            <div className="fade-in" style={{ textAlign: 'center' }}>
+              <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--slate-color-positive-surface-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
+                <span className="slate-text-positive" style={{ fontSize: '1.25rem' }}>&check;</span>
+              </div>
+              <h2 style={{ font: 'var(--slate-font-mobile-hero-level-6)' }}>Application confirmed</h2>
+              <p style={{ font: 'var(--slate-font-mobile-body-default)', marginTop: '0.5rem' }} className="slate-text-secondary">
+                This is where the user would proceed to the lender's application flow.
+              </p>
+              <button onClick={() => setConfirmed(false)} className="slate-text-action" style={{ font: 'var(--slate-font-mobile-body-default)', marginTop: '1.5rem' }}>
+                &larr; Back to calculator (prototype only)
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div style={{ minHeight: '100vh', maxWidth: 428, margin: '0 auto', paddingBottom: 140 }}>
+          {/* Header */}
+          <div style={{
+            background: 'var(--slate-color-action-surface-primary)',
+            padding: '3rem 1rem 1.5rem',
+            borderRadius: '0 0 var(--slate-components-card-border-radius-default) var(--slate-components-card-border-radius-default)',
+          }}>
+            <button className="slate-text-inverted-secondary" style={{ font: 'var(--slate-font-mobile-body-default)', marginBottom: '1rem' }}>&larr; Back to offers</button>
+            <h1 style={{ font: 'var(--slate-font-mobile-hero-level-5)' }} className="slate-text-inverted">Your consolidation summary</h1>
+            <p style={{ font: 'var(--slate-font-mobile-body-default)', marginTop: '0.25rem' }} className="slate-text-inverted-secondary">
+              Here's how consolidating with {CONSOLIDATION_LOAN.lender} compares to your current debts.
+            </p>
+          </div>
+
+          {/* Content */}
+          <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+            <SavingsCallout totalSaving={totalSaving} isPositive={totalSaving > 0} />
+
+            {/* At a glance */}
+            <div className="slate-card fade-in">
+              <div className="slate-card-content">
+                <span style={{ font: 'var(--slate-font-mobile-heading-level-4)' }}>At a glance</span>
+                <div style={{ marginTop: '0.5rem' }}>
+                  <MetricRow label="Monthly payment" current={fmt(existing.totalMonthlyPayment)} next={fmt(CONSOLIDATION_LOAN.monthlyPayment)}
+                    colorClass={metricColor(existing.totalMonthlyPayment, CONSOLIDATION_LOAN.monthlyPayment)} />
+                  <MetricRow label="Total amount repayable" current={fmt(existing.totalCostOfCredit)} next={fmt(consolidated.totalCostOfCredit)}
+                    colorClass={metricColor(existing.totalCostOfCredit, consolidated.totalCostOfCredit)} />
+                  <MetricRow label="Debt-free by" current={monthsToDate(existing.debtFreeMonths)} next={monthsToDate(consolidated.debtFreeMonths)} />
+                  <MetricRow label="Payments to manage" current={String(EXISTING_DEBTS.length)} next="1"
+                    colorClass={metricColor(EXISTING_DEBTS.length, 1)} />
+                </div>
+              </div>
+            </div>
+
+            <CashBreakdown loan={CONSOLIDATION_LOAN} totalBalance={existing.totalBalance} />
+
+            {/* Debts being consolidated */}
+            <div className="slate-card fade-in">
+              <div className="slate-card-content">
+                <span style={{ font: 'var(--slate-font-mobile-heading-level-4)' }}>Debts being consolidated ({EXISTING_DEBTS.length})</span>
+                <div style={{ marginTop: '0.5rem' }}>
+                  {EXISTING_DEBTS.map(debt => <DebtCellRow key={debt.id} debt={debt} />)}
+                </div>
+                <hr className="slate-divider" style={{ margin: '0.75rem 0' }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', font: 'var(--slate-font-mobile-body-bold)' }}>
+                  <span>Total outstanding</span>
+                  <span>{fmt(existing.totalBalance)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Your new loan */}
+            <div className="slate-card fade-in">
+              <div className="slate-card-content">
+                <span style={{ font: 'var(--slate-font-mobile-heading-level-4)' }}>Your new loan</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.75rem' }}>
+                  {[
+                    ['Lender', CONSOLIDATION_LOAN.lender],
+                    ['Loan amount', fmt(CONSOLIDATION_LOAN.amount)],
+                    ['APR', `${CONSOLIDATION_LOAN.apr}%`],
+                    ['Term', `${CONSOLIDATION_LOAN.termMonths} months`],
+                    ['Monthly payment', `${fmt(CONSOLIDATION_LOAN.monthlyPayment)}/mo`],
+                  ].map(([label, value], i) => (
+                    <div key={i} className="slate-cell-separator" style={{ display: 'flex', justifyContent: 'space-between', font: 'var(--slate-font-mobile-body-default)', paddingBottom: '0.5rem' }}>
+                      <span className="slate-text-secondary">{label}</span>
+                      <span style={{ fontWeight: label === 'Monthly payment' ? 700 : 500 }}>{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <ConfidenceExplainer />
+
+            {/* Prototype note */}
+            <div style={{
+              background: 'var(--slate-color-surface-background-primary)',
+              borderRadius: 'var(--slate-components-card-callout-border-radius-default)',
+              padding: '0.75rem',
+              border: '1px dashed var(--slate-components-cell-row-border-full)',
+              font: 'var(--slate-font-mobile-body-small)',
+            }} className="slate-text-disabled">
+              <strong className="slate-text-secondary">Prototype note:</strong> Settlement figures are not shown — they are not a configuration we control. In production, settlement amounts come from the lender and may differ from outstanding balances (early settlement fees, accrued interest, etc).
+            </div>
+          </div>
+
+          {/* Sticky CTA */}
+          <div className="slate-sticky-bottom" style={{ maxWidth: 428, margin: '0 auto' }}>
+            <button onClick={() => setConfirmed(true)} className="slate-btn slate-btn-primary">Continue to application</button>
+            <button className="slate-btn slate-btn-tertiary" style={{ marginTop: '0.25rem' }}>Go back to offers</button>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
